@@ -9,7 +9,6 @@ function App() {
       .then(res => res.json())
       .then((result) => {
           setResources(result)
-          console.log(result)
         },
         (error) => {
           console.log(error)
@@ -17,7 +16,8 @@ function App() {
       )
   }, []);
 
-  function deleteResource(resource) {
+  function deleteResource(resource, index) {
+    let tempArray = resources;
     const reqData = {
       method: 'DELETE',
       body: {
@@ -29,26 +29,33 @@ function App() {
     fetch("https://jsonplaceholder.typicode.com/posts/" + resource.id, reqData).then((response) => {
       return response.json();
     }).then((result) => {
-      console.log(result)      
+      //Actual delete functionality
+      tempArray.splice(index, 1);
+      setResources([])
+      setResources(tempArray)      
     },
     (error) => {
       console.log(error)
     });
   }
 
-  function editResource(resource) {
+  function editResource(resource, index) {
+    let tempArray = resources;
     const reqData = {
       method: 'PATCH',
       body: {
           'title': 'newTitle',
           'body': 'newBody',
-          'userId': 123
+          'userId': resource.userId
         }
     }
     fetch("https://jsonplaceholder.typicode.com/posts/" + resource.id, reqData).then((response) => {
       return response.json();
     }).then((result) => {
-      console.log(result)      
+      tempArray[index] = reqData.body
+      tempArray[index].id = resource.id
+      setResources([])
+      setResources(tempArray)
     },
     (error) => {
       console.log(error)
@@ -56,23 +63,22 @@ function App() {
   }
 
   return (
-    <body>
-      <div class="header">
+    <div>
+      <div className="header">
         <h1>React Assignment for Decathlon</h1>
       </div>
-
-      <div class="row">
+      <div className="row">
         {resources.map(function(resource, index){
           return (
-            <div class="col-6 col-s-9">
+            <div className="col-6 col-s-9">
               <h1>{resource.title}</h1>
               <p>{resource.body}</p>
-              <button class="editButton" onClick={() => editResource(resource)}>Edit Button</button>
-              <button class="deleteButton" onClick={() => deleteResource(resource)}>Delete Button</button>
+              <button className="editButton" onClick={() => editResource(resource, index)}>Edit Button</button>
+              <button className="deleteButton" onClick={() => deleteResource(resource, index)}>Delete Button</button>
             </div>
         )})}
       </div>
-    </body>
+    </div>
   );
 }
 
